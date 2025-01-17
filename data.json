@@ -1,0 +1,29 @@
+{
+    "high_codes": [
+        "0965"
+    ],
+    "medium_codes": [
+        "0856",
+        "1378",
+        "3941"
+    ],
+    "low_codes": [
+        "5819",
+        "0372",
+        "9571"
+    ],
+    "rules": {
+        "high": {
+            "disable_alarms": true,
+            "unlock_bolt": true
+        },
+        "medium": {
+            "disable_alarms": true,
+            "unlock_bolt": false
+        },
+        "low": {
+            "disable_alarms": false,
+            "unlock_bolt": true
+        }
+    }
+}

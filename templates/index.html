@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Level Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Code Level Manager</h1>
+
+        <div class="accordion mt-4" id="accordionExample">
+            <!-- High Level -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingHigh">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHigh" aria-expanded="true" aria-controls="collapseHigh">
+                        High Level Codes and Rules
+                    </button>
+                </h2>
+                <div id="collapseHigh" class="accordion-collapse collapse show" aria-labelledby="headingHigh" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <textarea class="form-control mb-3" id="high-codes" rows="2">{{ ','.join(high_codes) }}</textarea>
+                        <div>
+                            <label>
+                                <input type="checkbox" id="high-disable-alarms" {{ 'checked' if rules['high']['disable_alarms'] else '' }}>
+                                Disable Alarms
+                            </label>
+                            <br>
+                            <label>
+                                <input type="checkbox" id="high-unlock-bolt" {{ 'checked' if rules['high']['unlock_bolt'] else '' }}>
+                                Unlock Bolt
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medium Level -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingMedium">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMedium" aria-expanded="false" aria-controls="collapseMedium">
+                        Medium Level Codes and Rules
+                    </button>
+                </h2>
+                <div id="collapseMedium" class="accordion-collapse collapse" aria-labelledby="headingMedium" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <textarea class="form-control mb-3" id="medium-codes" rows="2">{{ ','.join(medium_codes) }}</textarea>
+                        <div>
+                            <label>
+                                <input type="checkbox" id="medium-disable-alarms" {{ 'checked' if rules['medium']['disable_alarms'] else '' }}>
+                                Disable Alarms
+                            </label>
+                            <br>
+                            <label>
+                                <input type="checkbox" id="medium-unlock-bolt" {{ 'checked' if rules['medium']['unlock_bolt'] else '' }}>
+                                Unlock Bolt
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Level -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingLow">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLow" aria-expanded="false" aria-controls="collapseLow">
+                        Low Level Codes and Rules
+                    </button>
+                </h2>
+                <div id="collapseLow" class="accordion-collapse collapse" aria-labelledby="headingLow" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <textarea class="form-control mb-3" id="low-codes" rows="2">{{ ','.join(low_codes) }}</textarea>
+                        <div>
+                            <label>
+                                <input type="checkbox" id="low-disable-alarms" {{ 'checked' if rules['low']['disable_alarms'] else '' }}>
+                                Disable Alarms
+                            </label>
+                            <br>
+                            <label>
+                                <input type="checkbox" id="low-unlock-bolt" {{ 'checked' if rules['low']['unlock_bolt'] else '' }}>
+                                Unlock Bolt
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="updateSettings()">Save Changes</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function updateSettings() {
+            try {
+                // Gather codes
+                const highCodes = document.getElementById('high-codes').value.split(',').map(code => code.trim());
+                const mediumCodes = document.getElementById('medium-codes').value.split(',').map(code => code.trim());
+                const lowCodes = document.getElementById('low-codes').value.split(',').map(code => code.trim());
+
+                // Update codes via API
+                await fetch('/update/codes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ high: highCodes, medium: mediumCodes, low: lowCodes }),
+                });
+
+                // Gather and update rules
+                const rules = {
+                    high: {
+                        disable_alarms: document.getElementById('high-disable-alarms').checked,
+                        unlock_bolt: document.getElementById('high-unlock-bolt').checked,
+                    },
+                    medium: {
+                        disable_alarms: document.getElementById('medium-disable-alarms').checked,
+                        unlock_bolt: document.getElementById('medium-unlock-bolt').checked,
+                    },
+                    low: {
+                        disable_alarms: document.getElementById('low-disable-alarms').checked,
+                        unlock_bolt: document.getElementById('low-unlock-bolt').checked,
+                    },
+                };
+
+                for (const level in rules) {
+                    await fetch('/update/rules', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ level, settings: rules[level] }),
+                    });
+                }
+
+                alert('Settings updated successfully!');
+            } catch (error) {
+                console.error('Error updating settings:', error);
+                alert('Failed to update settings.');
+            }
+        }
+    </script>
+</body>
+</html>
